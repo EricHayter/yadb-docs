@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-05-30T09:06:38-04:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yet Another Database Docs</title><subtitle>These are the documentation pages for Yet Another Database (yadb). The docs will include a wide variety of information including developer logs,  architecture descriptions, etc...</subtitle><entry><title type="html">dev/0: Hello, World!</title><link href="http://localhost:4000/dev/2025/05/29/hello-world.html" rel="alternate" type="text/html" title="dev/0: Hello, World!" /><published>2025-05-29T15:45:10-04:00</published><updated>2025-05-29T15:45:10-04:00</updated><id>http://localhost:4000/dev/2025/05/29/hello-world</id><content type="html" xml:base="http://localhost:4000/dev/2025/05/29/hello-world.html"><![CDATA[<blockquote>
+  <p>“A journey of a thousand miles begins with your first step… but ends with you collapsing a thousand miles away, probably in some desert somewhere.”</p>
+  <ul>
+    <li>Dylan Macdonald</li>
+  </ul>
+</blockquote>
+
+<p>This is the start of the developer logs. Here I will give updates on the
+development of yadb after most major changes. The project has been roughly
+setup with most of the C++ related tooling setup (CMake, clangformat, etc…).
+To start the project, the storage implementation will be done first to
+facilitate the IO handling along with the implementation of a page buffer/cache
+which I may make a small meta post for in the near future.</p>
+
+<p>Also, an <a href="/about/">about</a> page has been created to indicate the motivation
+for the project. Please feel free to check it out. :)</p>]]></content><author><name></name></author><category term="dev" /><summary type="html"><![CDATA[“A journey of a thousand miles begins with your first step… but ends with you collapsing a thousand miles away, probably in some desert somewhere.” Dylan Macdonald]]></summary></entry></feed>
