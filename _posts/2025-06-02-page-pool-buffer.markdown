@@ -42,7 +42,7 @@ While the database is running, a large memory allocation is made to create a
 buffer to store these pages—this is known as the **page buffer**. The buffer
 contains many slots called **frames**, each used to store a copy of a page.
 
-![database frames and pages illustrated](/assets/database_page_frame.png)
+![database frames and pages illustrated]({{ site.baseurl }}/assets/database_page_frame.png)
 
 After the initial performance cost of copying the entire page into memory, 
 all subsequent reads from the page are significantly faster than accessing 
@@ -54,7 +54,7 @@ the data into memory (what if the database contains multiple gigabytes of data?)
 In such cases, some of the pages in the buffer need to be removed. But which ones?  
 And how?
 
-![illustration of the replacement policy finding space for a page](/assets/database_page_buffer_full.png)
+![illustration of the replacement policy finding space for a page]({{ site.baseurl }}/assets/database_page_buffer_full.png)
 
 Databases use **replacement policies**, which dictate which pages in the buffer
 should be removed and replaced by new ones. Many such policies exist, including
