@@ -1,7 +1,91 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-05-30T09:06:38-04:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yet Another Database Docs</title><subtitle>These are the documentation pages for Yet Another Database (yadb). The docs will include a wide variety of information including developer logs,  architecture descriptions, etc...</subtitle><entry><title type="html">dev/0: Hello, World!</title><link href="http://localhost:4000/dev/2025/05/29/hello-world.html" rel="alternate" type="text/html" title="dev/0: Hello, World!" /><published>2025-05-29T15:45:10-04:00</published><updated>2025-05-29T15:45:10-04:00</updated><id>http://localhost:4000/dev/2025/05/29/hello-world</id><content type="html" xml:base="http://localhost:4000/dev/2025/05/29/hello-world.html"><![CDATA[<blockquote>
-  <p>“A journey of a thousand miles begins with your first step… but ends with you collapsing a thousand miles away, probably in some desert somewhere.”</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-06-02T16:49:54-04:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Yet Another Database Docs</title><subtitle>These are the documentation pages for Yet Another Database (yadb). The docs will include a wide variety of information including developer logs,  architecture descriptions, etc...</subtitle><entry><title type="html">Database internals: page buffer pools</title><link href="http://localhost:4000/meta/2025/06/02/page-pool-buffer.html" rel="alternate" type="text/html" title="Database internals: page buffer pools" /><published>2025-06-02T14:33:00-04:00</published><updated>2025-06-02T14:33:00-04:00</updated><id>http://localhost:4000/meta/2025/06/02/page-pool-buffer</id><content type="html" xml:base="http://localhost:4000/meta/2025/06/02/page-pool-buffer.html"><![CDATA[<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>---------------------------------------------------
+Latency Numbers Every Programmer Should Know
+---------------------------------------------------
+L1 cache reference                           0.5 ns
+Branch mispredict                            5   ns
+L2 cache reference                           7   ns
+Mutex lock/unlock                           25   ns
+Main memory reference                      100   ns
+Compress 1K bytes with Zippy             3,000   ns
+Send 1K bytes over 1 Gbps network       10,000   ns
+Read 4K randomly from SSD*             150,000   ns
+Read 1 MB sequentially from memory     250,000   ns
+Round trip within same datacenter      500,000   ns
+Read 1 MB sequentially from SSD*     1,000,000   ns
+Disk seek                           10,000,000   ns
+Read 1 MB sequentially from disk    20,000,000   ns
+Send packet CA-&gt;Netherlands-&gt;CA    150,000,000   ns
+
+Source: Colin Scott
+https://colin-scott.github.io/personal_website/research/interactive_latency.html
+</code></pre></div></div>
+
+<p>Reading from disk is <em>really</em>, <em>really</em> slow. So, how do databases store large
+amounts of data without sacrificing performance? The answer is by using
+<strong>page buffer pools</strong>.</p>
+
+<p>When a database stores information on disk, data is typically stored in chunks
+called <strong>pages</strong>. In most database implementations, page sizes range from 2 KB
+to 64 KB (with 
+<a href="https://github.com/duckdb/duckdb/issues/1394">some</a> as large as 256 KB!),
+with most databases using 4 KB, 8 KB, or 16 KB pages.</p>
+
+<p>While the database is running, a large memory allocation is made to create a
+buffer to store these pages—this is known as the <strong>page buffer</strong>. The buffer
+contains many slots called <strong>frames</strong>, each used to store a copy of a page.</p>
+
+<p><img src="/assets/database_page_frame.png" alt="database frames and pages illustrated" /></p>
+
+<p>After the initial performance cost of copying the entire page into memory, 
+all subsequent reads from the page are significantly faster than accessing 
+it directly from disk due to the difference is access times of memory vs disk.</p>
+
+<p>Sounds simple enough. But there’s an important question left to answer: what
+happens when the buffer fills up? As mentioned earlier, we can’t fit <em>all</em> 
+the data into memory (what if the database contains multiple gigabytes of data?).<br />
+In such cases, some of the pages in the buffer need to be removed. But which ones?<br />
+And how?</p>
+
+<p><img src="/assets/database_page_buffer_full.png" alt="illustration of the replacement policy finding space for a page" /></p>
+
+<p>Databases use <strong>replacement policies</strong>, which dictate which pages in the buffer
+should be removed and replaced by new ones. Many such policies exist, including
+LRU (Least Recently Used), clock, random replacement (RR),
+<a href="https://en.wikipedia.org/wiki/Cache_replacement_policies">and others</a>.<br />
+Each replacement policy has its pros and cons and is suited to certain access
+patterns better than others.</p>
+
+<p>Once a replacement policy is selected, the buffer pool can evict pages accordingly.
+Importantly, because most databases support both reading and writing, the buffer
+pool must also track whether a page has been modified—whether it’s <strong>dirty</strong>.<br />
+This is typically done using a bitfield called a <strong>dirty bit</strong>. If the dirty bit 
+is set (meaning the page has been modified), the database must write the updated 
+page back to its location in the database file before eviction. If the bit is 
+not set (i.e., the page hasn’t been modified), the page can be replaced
+immediately by another page.</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/* 
+A page buffer pool might contain a map from page IDs to some type of page
+metadata, which includes information such as:
+- The frame containing the page
+- Whether the page has been modified (is it dirty?)
+- Other possible fields, such as reference counts to the page, etc.
+*/</span>
+<span class="k">struct</span> <span class="nc">PageMeta</span> <span class="p">{</span>
+    <span class="n">frame_id_t</span> <span class="n">frame_id</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">is_dirty</span><span class="p">;</span>
+    <span class="p">...</span>
+<span class="p">};</span>
+</code></pre></div></div>
+<p>When implemented correctly, the page buffer pool should be completely
+invisible to the user, automatically copying and evicting pages as needed
+to perform efficient reads and writes.</p>
+
+<p><em>Note: A subsequent post may be made in the future to discuss some of the
+performance trade-offs between different replacement policies.</em></p>]]></content><author><name></name></author><category term="meta" /><summary type="html"><![CDATA[``` Latency Numbers Every Programmer Should Know ————————————————— L1 cache reference 0.5 ns Branch mispredict 5 ns L2 cache reference 7 ns Mutex lock/unlock 25 ns Main memory reference 100 ns Compress 1K bytes with Zippy 3,000 ns Send 1K bytes over 1 Gbps network 10,000 ns Read 4K randomly from SSD* 150,000 ns Read 1 MB sequentially from memory 250,000 ns Round trip within same datacenter 500,000 ns Read 1 MB sequentially from SSD* 1,000,000 ns Disk seek 10,000,000 ns Read 1 MB sequentially from disk 20,000,000 ns Send packet CA-&gt;Netherlands-&gt;CA 150,000,000 ns]]></summary></entry><entry><title type="html">dev/0: Hello, World!</title><link href="http://localhost:4000/dev/2025/05/29/hello-world.html" rel="alternate" type="text/html" title="dev/0: Hello, World!" /><published>2025-05-29T15:45:10-04:00</published><updated>2025-05-29T15:45:10-04:00</updated><id>http://localhost:4000/dev/2025/05/29/hello-world</id><content type="html" xml:base="http://localhost:4000/dev/2025/05/29/hello-world.html"><![CDATA[<blockquote>
+  <p>“A journey of a thousand miles begins with a single step.”</p>
   <ul>
-    <li>Dylan Macdonald</li>
+    <li>Lao Tzu</li>
   </ul>
 </blockquote>
 
@@ -13,4 +97,4 @@ facilitate the IO handling along with the implementation of a page buffer/cache
 which I may make a small meta post for in the near future.</p>
 
 <p>Also, an <a href="/about/">about</a> page has been created to indicate the motivation
-for the project. Please feel free to check it out. :)</p>]]></content><author><name></name></author><category term="dev" /><summary type="html"><![CDATA[“A journey of a thousand miles begins with your first step… but ends with you collapsing a thousand miles away, probably in some desert somewhere.” Dylan Macdonald]]></summary></entry></feed>
+for the project. Please feel free to check it out. :)</p>]]></content><author><name></name></author><category term="dev" /><summary type="html"><![CDATA[“A journey of a thousand miles begins with a single step.” Lao Tzu]]></summary></entry></feed>
