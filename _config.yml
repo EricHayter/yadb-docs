@@ -24,8 +24,8 @@ description: >- # this means to ignore newlines until "baseurl:"
   These are the documentation pages for Yet Another Database (yadb). The docs
   will include a wide variety of information including developer logs, 
   architecture descriptions, etc...
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/yadb-docs" # the subpath of your site, e.g. /blog
+url: "https://www.erichayter.com" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  erichayter
 
 # Build settings
