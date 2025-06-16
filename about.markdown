@@ -9,9 +9,9 @@ permalink: /about/
 
 Yet Another Database (inspired by the naming of
 [yacc](https://en.wikipedia.org/wiki/Yacc)) is a project for me to design and
-implement my own database. I will (hopfeully) be using this page to
+implement my own database. I will (hopefully) be using this page to
 document my progress in creating the database and also writing small posts
 on some of the internals of databases.
 
-![Historical image of a woodworker planing a board](/assets/images/woodworker.jpg)
+![Historical image of a woodworker planing a board]({{ site.baseurl }}/assets/images/woodworker.jpg)
 
