@@ -34,7 +34,7 @@ amounts of data without sacrificing performance? The answer is by using
 
 When a database stores information on disk, data is typically stored in chunks
 called **pages**. In most database implementations, page sizes range from 2 KB
-to 64 KB (with 
+to 64 KB (with
 [some](https://github.com/duckdb/duckdb/issues/1394) as large as 256 KB!),
 with most databases using 4 KB, 8 KB, or 16 KB pages.
 
@@ -42,38 +42,38 @@ While the database is running, a large memory allocation is made to create a
 buffer to store these pages—this is known as the **page buffer**. The buffer
 contains many slots called **frames**, each used to store a copy of a page.
 
-![database frames and pages illustrated]({{ site.baseurl }}/assets/database_page_frame.png)
+![database frames and pages illustrated]({{ site.baseurl }}/assets/images/database_page_frame.png)
 
-After the initial performance cost of copying the entire page into memory, 
-all subsequent reads from the page are significantly faster than accessing 
+After the initial performance cost of copying the entire page into memory,
+all subsequent reads from the page are significantly faster than accessing
 it directly from disk due to the difference is access times of memory vs disk.
 
 Sounds simple enough. But there’s an important question left to answer: what
-happens when the buffer fills up? As mentioned earlier, we can’t fit *all* 
-the data into memory (what if the database contains multiple gigabytes of data?).  
-In such cases, some of the pages in the buffer need to be removed. But which ones?  
+happens when the buffer fills up? As mentioned earlier, we can’t fit *all*
+the data into memory (what if the database contains multiple gigabytes of data?).
+In such cases, some of the pages in the buffer need to be removed. But which ones?
 And how?
 
-![illustration of the replacement policy finding space for a page]({{ site.baseurl }}/assets/database_page_buffer_full.png)
+![illustration of the replacement policy finding space for a page]({{ site.baseurl }}/assets/images/database_page_buffer_full.png)
 
 Databases use **replacement policies**, which dictate which pages in the buffer
 should be removed and replaced by new ones. Many such policies exist, including
 LRU (Least Recently Used), clock, random replacement (RR),
-[and others](https://en.wikipedia.org/wiki/Cache_replacement_policies).  
+[and others](https://en.wikipedia.org/wiki/Cache_replacement_policies).
 Each replacement policy has its pros and cons and is suited to certain access
 patterns better than others.
 
 Once a replacement policy is selected, the buffer pool can evict pages accordingly.
 Importantly, because most databases support both reading and writing, the buffer
-pool must also track whether a page has been modified—whether it’s **dirty**.  
-This is typically done using a bitfield called a **dirty bit**. If the dirty bit 
-is set (meaning the page has been modified), the database must write the updated 
-page back to its location in the database file before eviction. If the bit is 
+pool must also track whether a page has been modified—whether it’s **dirty**.
+This is typically done using a bitfield called a **dirty bit**. If the dirty bit
+is set (meaning the page has been modified), the database must write the updated
+page back to its location in the database file before eviction. If the bit is
 not set (i.e., the page hasn’t been modified), the page can be replaced
 immediately by another page.
 
 ```cpp
-/* 
+/*
 A page buffer pool might contain a map from page IDs to some type of page
 metadata, which includes information such as:
 - The frame containing the page
