@@ -269,6 +269,6 @@ This approach of using views into the buffer may seem unintuitive compared to ju
 
 ## Conclusion
 
-With the implementation of the disk manager, disk scheduler, and page buffer manager, YADB now has a complete subsystem for efficient, asynchronous page-level disk I/O. These components form the backbone for transaction-safe storage in the database engine and are designed to scale well with concurrent workloads. Next up will be integrating the page buffer manager with concurrency control and logging—stay tuned!
+With the implementation of the disk manager, disk scheduler, and page buffer manager, YADB now has a complete subsystem for efficient, asynchronous page-level disk I/O. These components form the backbone for transaction-safe storage in the database engine and are designed to scale well with concurrent workloads. Next up will be integrating the index files to allow for blazingly fast data queries!
 
 
