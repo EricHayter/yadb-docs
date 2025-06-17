@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Database internals: page buffer pools"
+title:  "Database Internals: Page Buffers"
 date:   2025-06-02 14:33:00 -0400
 categories: meta
 ---
@@ -30,7 +30,7 @@ https://colin-scott.github.io/personal_website/research/interactive_latency.html
 
 Reading from disk is *really*, *really* slow. So, how do databases store large
 amounts of data without sacrificing performance? The answer is by using
-**page buffer pools**.
+**page buffers**.
 
 When a database stores information on disk, data is typically stored in chunks
 called **pages**. In most database implementations, page sizes range from 2 KB
@@ -63,9 +63,9 @@ LRU (Least Recently Used), clock, random replacement (RR),
 Each replacement policy has its pros and cons and is suited to certain access
 patterns better than others.
 
-Once a replacement policy is selected, the buffer pool can evict pages accordingly.
-Importantly, because most databases support both reading and writing, the buffer
-pool must also track whether a page has been modified—whether it’s **dirty**.
+Once a replacement policy is selected, the page buffer can evict pages accordingly.
+Importantly, because most databases support both reading and writing, the page buffer
+must also track whether a page has been modified—whether it’s **dirty**.
 This is typically done using a bitfield called a **dirty bit**. If the dirty bit
 is set (meaning the page has been modified), the database must write the updated
 page back to its location in the database file before eviction. If the bit is
@@ -74,7 +74,7 @@ immediately by another page.
 
 ```cpp
 /*
-A page buffer pool might contain a map from page IDs to some type of page
+A page buffer might contain a map from page IDs to some type of page
 metadata, which includes information such as:
 - The frame containing the page
 - Whether the page has been modified (is it dirty?)
@@ -86,8 +86,8 @@ struct PageMeta {
     ...
 };
 ```
-When implemented correctly, the page buffer pool should be completely
-invisible to the user, automatically copying and evicting pages as needed
+When implemented correctly, the page buffer should be completely
+invisible to the user, automatically loading  and evicting pages as needed
 to perform efficient reads and writes.
 
 *Note: A subsequent post may be made in the future to discuss some of the
