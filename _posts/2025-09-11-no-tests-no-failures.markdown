@@ -100,20 +100,6 @@ of both my tests and the code they support.
 
 
 
-[^1]: Right now, the main CMake library that contains all of my core logic
-is an aggregation of existing static libraries. As far as I could tell, using
-an interface library to logically group all the static libraries together was
-the proper approach. However, when trying to add compile flags to all the code
-inside the larger collection, adding compile flags is only allowed at the
-`INTERFACE` scope — meaning only code that *links against* my main library
-will use those compile options, not the library itself.
-I eventually caved and just wrote a not-so-pretty function to add compile
-options to each static library individually. It works, but I’m not entirely
-happy with it.
-
-[^2]: I found a really interesting article by the developers of the
-game Factorio (play it if you haven’t!) about their adoption of TDD, which I
-first saw on
-[Hacker News](https://news.ycombinator.com/item?id=27549143).
-
+[^1]: Right now, the main CMake library that contains all of my core logic is an aggregation of existing static libraries. As far as I could tell, using an interface library to logically group all the static libraries together was the proper approach. However, when trying to add compile flags to all the code inside the larger collection, adding compile flags is only allowed at the `INTERFACE` scope — meaning only code that *links against* my main library will use those compile options, not the library itself. I eventually caved and just wrote a not-so-pretty function to add compile options to each static library individually. It works, but I’m not entirely happy with it.
+[^2]: I found a really interesting article by the developers of the game Factorio (play it if you haven’t!) about their adoption of TDD, which I first saw on [Hacker News](https://news.ycombinator.com/item?id=27549143).
 [^3]: Check out the TDD manifesto [here](https://tddmanifesto.com/)
