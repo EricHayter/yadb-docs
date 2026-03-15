@@ -5,7 +5,7 @@ date:   2026-03-14
 categories: dev
 ---
 
-![liftoff](/assets/images/liftoff.gif)
+![liftoff]({{ site.baseurl }}/assets/images/liftoff.gif)
 
 It's been a while (around 4 months!), so I figured I should give an update on
 some of the progress that I've made very recently in the project after working
@@ -62,7 +62,7 @@ Now for the new features in YADB! First off this update follows after one of
 the biggest milestones yet for YADB: we can now write queries in our own shell
 and execute (very very very limited) SQL queries.
 
-![shell demo](/assets/images/shell_demo.png)
+![shell demo]({{ site.baseurl }}/assets/images/shell_demo.png)
 
 To do this some new system classes were created in particular:
 - the shell
