@@ -9,7 +9,7 @@ categories: dev
 
 It's been a while (around 4 months!), so I figured I should give an update on
 some of the progress that I've made very recently in the project after working
-on some other smaller projects. That being said, I haven't forgotten about YADB and really
+on some other smaller projects[^1][^2]. That being said, I haven't forgotten about YADB and really
 hope to continue making progress on this project to explore more about
 databases.
 
@@ -97,3 +97,6 @@ think there's that much of an interest for me with just implementing
 yet another DBMS, ideally my vision for YADB is that I try some experimental
 techniques in the field on a relatively basic foundation, but we'll see how
 that goes.
+
+[^1]: [renderer2](https://github.com/EricHayter/renderer2) - A 3D rendering project I've been working on
+[^2]: [mikado](https://github.com/EricHayter/mikado) - Another side project
